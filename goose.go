@@ -11,7 +11,12 @@ import (
 )
 
 
-func Upload(endpoint string, accessKeyID string, secretAccessKey string, bucketName string, filePath string, location string, objectName string) string {
+func Upload(staticOptions [4]string, bucketName string, filePath string,  string, objectName string) string {
+	
+		endpoint := staticOptions[0]
+		accessKeyID := staticOptions[1]
+		secretAccessKey  := staticOptions[2]
+		location := staticOptions[3]
         ctx := context.Background()
         useSSL := true
 
