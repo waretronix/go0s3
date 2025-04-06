@@ -11,12 +11,13 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func Upload(staticOptions [4]string, bucketName string, filePath string, string, objectName string, cleanup bool) string {
+func Upload(staticOptions [5]string, bucketName string, filePath string, objectName string, domainrewrite bool, cleanup bool) string {
 
 	endpoint := staticOptions[0]
 	accessKeyID := staticOptions[1]
 	secretAccessKey := staticOptions[2]
 	location := staticOptions[3]
+	domain := staticOptions[4]
 
 	ctx := context.Background()
 	useSSL := true
@@ -49,7 +50,6 @@ func Upload(staticOptions [4]string, bucketName string, filePath string, string,
 		log.Fatalln("Empty bucket name")
 	}
 
-	// Upload the test file
 	if objectName == "" {
 		object := strings.Split(filePath, ".")
 		id := uuid.New()
@@ -57,16 +57,19 @@ func Upload(staticOptions [4]string, bucketName string, filePath string, string,
 	}
 	contentType := "application/octet-stream"
 
-	// Upload the test file with FPutObject
 	info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
-
+	
 	res := "https://" + endpoint + "/" + bucketName + "/" + objectName
-
+	if domainrewrite {
+		res = "https://" + domain + "/" + objectName
+	}
+	
+	//cleanup files if needed
 	if cleanup {
 		err := os.Remove(filePath)
 		if err != nil {
